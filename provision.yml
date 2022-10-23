@@ -1,0 +1,33 @@
+---
+- name: Set up personal work computer
+  hosts: localhost
+  connection: local
+  vars:
+    - hetzner_cli_download_dir: '/tmp/hetzner-cli'
+    - hetzner_cli_path: '~/.local/bin/hcloud'
+  tasks:
+    - name: Check whether Hetzner CLI exists
+      stat:
+        path: '{{ hetzner_cli_path }}'
+      register: hcloud_stat_result
+
+    - name: Install Hetzner CLI tool
+      block:
+      - name: Create temporary untar dir
+        file:
+          path: '{{ hetzner_cli_download_dir }}'
+          state: directory
+          mode: '0755'
+  
+      - name: Get latest release off Github
+        unarchive:
+          src: 'https://github.com/hetznercloud/cli/releases/download/v1.30.3/hcloud-linux-amd64.tar.gz'
+          dest: '{{ hetzner_cli_download_dir }}'
+          remote_src: yes
+  
+      - name: Move CLI binary to .local/bin
+        copy:
+          src: '{{ hetzner_cli_download_dir }}/hcloud'
+          dest: '{{ hetzner_cli_path }}'
+          mode: '0700'
+      when: not hcloud_stat_result.stat.exists
