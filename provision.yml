@@ -6,6 +6,14 @@
     - hetzner_cli_download_dir: '/tmp/hetzner-cli'
     - hetzner_cli_path: '~/.local/bin/hcloud'
   tasks:
+    - name: Install tools via pip
+      pip:
+        name:
+          - awscli
+          - ansible
+        extra_args: '--user'
+        state: latest
+
     - name: Check whether Hetzner CLI exists
       stat:
         path: '{{ hetzner_cli_path }}'
